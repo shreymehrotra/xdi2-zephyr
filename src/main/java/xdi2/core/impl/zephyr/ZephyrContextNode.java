@@ -51,7 +51,7 @@ public class ZephyrContextNode extends AbstractContextNode implements ContextNod
 	public ContextNode createContextNode(XDI3SubSegment arcXri) {
 		try {
 			// URI uri = URIUtils.createURI(PROTOCOL, URL, PORT, MailerSDKConstants.ADD_BRANDS_SERVICE_URL, null, null)
-			String contextnodes = null;
+			String contextnodes = "";
 			String response = null;
 			Iterator<Entry<XDI3SubSegment, ZephyrContextNode>> it = this.contextNodes.entrySet().iterator();
 			if (this.contextNodes.size() != 0) {
@@ -61,12 +61,11 @@ public class ZephyrContextNode extends AbstractContextNode implements ContextNod
 					if (Key.equals(arcXri.toString())) {
 						throw new Xdi2GraphException("Context Node already exists");
 					} else {
-						contextnodes = Key + ",";
+						contextnodes = contextnodes + "\"" + Key + "\",";
 					}
 				}
-				contextnodes = "[" + contextnodes + arcXri.toString() + "]";
+				contextnodes = "[" + contextnodes + "\"" + arcXri.toString() + "\"" + "]";
 				contextnodes = StringUtils.removeStart(contextnodes, ",");
-
 			} else {
 				String[] arrnodes = null;
 				if (this.arcXri == null)
@@ -83,17 +82,20 @@ public class ZephyrContextNode extends AbstractContextNode implements ContextNod
 						contextnodes = jsonGraph.getString(key).replace("[", "").replace("]", "");
 					}
 				}
-				if (contextnodes != null && contextnodes.split(",") != null) {
+				if (contextnodes != "" && contextnodes.split(",") != null) {
 					arrnodes = contextnodes.split(",");
 					for (String node : arrnodes) {
 						if (node.equals(arcXri.toString())) {
 							throw new Xdi2GraphException("Context Node already exists");
 						}
 					}
-					contextnodes = "[" + contextnodes + "," + arcXri.toString() + "]";
+					contextnodes =  contextnodes + ",\"" + arcXri.toString() + "\"";
 				} else {
-					contextnodes = "[" + arcXri.toString() + "]";
+					contextnodes = "\"" + arcXri.toString() + "\"";
 				}
+				contextnodes = StringUtils.removeStart(contextnodes, ",");
+				contextnodes = "[" + contextnodes +  "]";
+				
 			}
 
 			if (this.arcXri != null) {
@@ -183,7 +185,7 @@ public class ZephyrContextNode extends AbstractContextNode implements ContextNod
 				String key = nodes.next();
 				if (key.equals("()")) {
 					contextnodes = jsonGraph.getString(key).replace("[", "").replace("]", "");
-					contextnodes = contextnodes.replace(arcXri.toString() + ",", "").replace(arcXri.toString(), "");
+					contextnodes = contextnodes.replace("\"" + arcXri.toString() + "\",", "").replace( "\"" + arcXri.toString() + "\"", "");
 					contextnodes = StringUtils.removeEnd(contextnodes, ",");
 					break;
 				}
@@ -230,7 +232,7 @@ public class ZephyrContextNode extends AbstractContextNode implements ContextNod
 	public Relation createRelation(XDI3Segment arcXri, ContextNode targetContextNode) {
 		try {
 
-			String newContextNode = "[" +  targetContextNode.toString() + "]";
+			String newContextNode = "[\"" +  targetContextNode.toString() + "\"]";
 
 			Map<XDI3Segment, ZephyrRelation> relations = this.relations.get(arcXri);
 
@@ -249,7 +251,7 @@ public class ZephyrContextNode extends AbstractContextNode implements ContextNod
 					throw new Xdi2GraphException("Relation already exists");
 				} else if (key.equals(arcXri.toString())) {
 					newContextNode = jsonGraph.getString(key).replace("[", "").replace("]", "");
-					newContextNode = newContextNode.concat("," + targetContextNode);
+					newContextNode = newContextNode.concat(",\"" + targetContextNode + "\"");
 					newContextNode = "[" + newContextNode + "]";
 				}
 			}
@@ -353,7 +355,7 @@ public class ZephyrContextNode extends AbstractContextNode implements ContextNod
 				String key = (String) nodes.next();
 				if (key.equals(arcXri.toString())) {
 					relation = jsonGraph.getString(key).replace("[", "").replace("]", ""); 
-					relation = relation.replace(targetContextNodeXri.toString() + ",", "").replace(targetContextNodeXri.toString(), "");
+					relation = relation.replace("\"" + targetContextNodeXri.toString() + "\",", "").replace( "\"" + targetContextNodeXri.toString() + "\"", "");
 					relation = StringUtils.removeEnd(relation, ",");
 					relation = "[" + relation + "]";
 					break;

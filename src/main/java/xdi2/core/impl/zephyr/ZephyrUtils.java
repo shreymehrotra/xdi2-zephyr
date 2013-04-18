@@ -51,6 +51,10 @@ public class ZephyrUtils {
 		{
 			input = new StringEntity("{}");
 		}
+		else if(Value.contains("[") && Value.contains("]")) 
+		{
+			input = new StringEntity("{\"" + Key +"\":"+ Value +"}");
+		}
 		else 
 		{
 			input = new StringEntity("{\"" + Key +"\":\""+ Value +"\"}");
