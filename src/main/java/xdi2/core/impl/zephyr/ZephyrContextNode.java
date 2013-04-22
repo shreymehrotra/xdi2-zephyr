@@ -85,7 +85,7 @@ public class ZephyrContextNode extends AbstractContextNode implements ContextNod
 				if (contextnodes != "" && contextnodes.split(",") != null) {
 					arrnodes = contextnodes.split(",");
 					for (String node : arrnodes) {
-						if (node.equals(arcXri.toString())) {
+						if (node.equals( "\"" + arcXri.toString() + "\"")) {
 							throw new Xdi2GraphException("Context Node already exists");
 						}
 					}
@@ -133,7 +133,7 @@ public class ZephyrContextNode extends AbstractContextNode implements ContextNod
 				String[] arrnodes = null;
 				String contextnodes = null;
 				response = ZephyrUtils.doGet(((ZephyrGraphFactory) this.getGraph().getGraphFactory()).getDataApi() + "/" + ((ZephyrGraph) this.getGraph()).getGraphIdentifier() + "/" + contextNodePath() + "?token=" + ((ZephyrGraphFactory) this.getGraph().getGraphFactory()).getOauthToken());
-
+				
 				log.info(response);
 				JSONObject jsonGraph = new JSONObject(response);
 
@@ -233,7 +233,8 @@ public class ZephyrContextNode extends AbstractContextNode implements ContextNod
 		try {
 
 			String newContextNode = "[\"" +  targetContextNode.toString() + "\"]";
-
+			String rels = "";
+			String[] arrRelations = null; 
 			Map<XDI3Segment, ZephyrRelation> relations = this.relations.get(arcXri);
 
 			if (relations == null) {
@@ -247,9 +248,19 @@ public class ZephyrContextNode extends AbstractContextNode implements ContextNod
 			Iterator<String> nodes = jsonGraph.keys();
 			while (nodes.hasNext()) {
 				String key = nodes.next();
-				if (!key.equals("") && jsonGraph.getString(key).contains(targetContextNode.toString())) {
-					throw new Xdi2GraphException("Relation already exists");
-				} else if (key.equals(arcXri.toString())) {
+				if (!key.equals("")) {
+					rels = jsonGraph.getString(key);
+					rels = rels.replace("[","").replace("]","");
+					if (rels != "" && rels.split(",") != null) {
+						arrRelations = rels.split(",");
+						for (String node : arrRelations) {
+							if (node.equals( "\"" + targetContextNode.toString() + "\"")) {
+								throw new Xdi2GraphException("Relation already exists");
+							}
+						}
+					}
+				} 
+				if (key.equals(arcXri.toString())) {
 					newContextNode = jsonGraph.getString(key).replace("[", "").replace("]", "");
 					newContextNode = newContextNode.concat(",\"" + targetContextNode + "\"");
 					newContextNode = "[" + newContextNode + "]";
